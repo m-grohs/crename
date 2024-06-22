@@ -1,10 +1,14 @@
 {
-	"name": "renamecli",
+	"name": "crename",
 	"version": "1.0.0",
-	"description": "a cli for renaming files with options",
+	"description": "Custom Rename CLI - default Folder rename scheme or custom file name with numbering",
 	"main": "bin/index.js",
 	"bin": {
 		"crename": "./bin/index.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/m-grohs/crename.git"
 	},
 	"scripts": {},
 	"author": "m.grohs",
