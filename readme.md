@@ -6,6 +6,8 @@ CLI Tool for renaming Folders (default scheme) or Files (custom scheme) in a spe
 
 #### How to Install
 
+Required: `Git` and `Node@v18.0.0`
+
 ```
 git clone https://github.com/m-grohs/crename.git
 
