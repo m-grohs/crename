@@ -1,4 +1,5 @@
 #! /usr/bin/env node
+'use strict';
 
 import { extname } from 'path';
 import { readdir, rename, renameSync } from 'node:fs';
