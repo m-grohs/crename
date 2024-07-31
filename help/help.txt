@@ -7,11 +7,9 @@ Options:
 -h, --help           Show this message and exit.
 -c, --custom         Runs with the Custom Option
 -d, --default        Runs with the Default Option
--r, --regex REGEX    Specify a Regex to use for finding Integers to use (WIP).
 
 Command Examples:
 crename -d
 crename --custom
-crename --regex /abc/g
 
 For more information, visit: https://www.github.com/m-grohs/crename
