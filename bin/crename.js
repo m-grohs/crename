@@ -1,20 +1,50 @@
 #! /usr/bin/env node
 'use strict';
 
-import { readFile } from 'node:fs';
 import { parseArgs } from 'node:util';
+import { readFile } from 'node:fs';
+import { select } from '@inquirer/prompts';
 import { options } from '../src/options.js';
 
-const { values: args } = parseArgs({ options });
+(() => {
+	const { values } = parseArgs({ options, allowPositionals: true });
 
-if (args.help) {
-	readFile('help/help.txt', 'utf-8', (err, data) => {
-		if (err) console.log(err);
-
-		console.log(data);
+	// Flags -c and -d cant exits at the same time
+	if ('custom' in values && 'default' in values) {
+		console.error('Flags --custom/-c and --default/-d can not be used together.\n');
 		process.exit();
+	}
+
+	// Flag --help read global help file
+	if ('help' in values) {
+		readFile('help/help.txt', 'utf-8', (err, data) => {
+			if (err) console.log(err);
+
+			console.log(data);
+			process.exit();
+		});
+	}
+
+	run();
+})();
+
+async function run() {
+	const answer = await select({
+		message: 'Select a color',
+		choices: [
+			{ name: 'Red', value: '#ff0000' },
+			{ name: 'Green', value: '#00ff00' },
+			{ name: 'Blue', value: '#0000ff' }
+		]
 	});
+	console.log('You selected:', answer);
 }
+
+// OLD STUFF
+// =========
+
+// if (args.help) {
+// }
 
 // import { extname } from 'path';
 // import { readdir, rename, renameSync } from 'node:fs';

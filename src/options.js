@@ -1,18 +1,17 @@
 export const options = {
 	default: {
 		type: 'boolean',
-		short: 'd'
+		short: 'd',
+		multiple: false
 	},
 	custom: {
 		type: 'boolean',
-		short: 'c'
-	},
-	regex: {
-		type: 'string',
-		short: 'r'
+		short: 'c',
+		multiple: false
 	},
 	help: {
 		type: 'boolean',
-		short: 'h'
+		short: 'h',
+		multiple: false
 	}
 };

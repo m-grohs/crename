@@ -1,5 +1,6 @@
 TODO
-test.js
-node_modules
 media
 media backup
+node_modules
+package-lock.json
+
