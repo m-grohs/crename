@@ -15,8 +15,9 @@ import { options } from '../src/options.js';
 		process.exit();
 	}
 
-	// Flag --help read global help file
-	if ('help' in values) {
+	// Flag --help read global help file only when it is the only arg
+	// otherwise show specific help files to other commands.
+	if ('help' in values && Object.keys(values).length === 1) {
 		readFile('help/help.txt', 'utf-8', (err, data) => {
 			if (err) console.log(err);
 
@@ -25,7 +26,7 @@ import { options } from '../src/options.js';
 		});
 	}
 
-	run();
+	//run();
 })();
 
 async function run() {
