@@ -10,9 +10,7 @@
 		"type": "git",
 		"url": "https://github.com/m-grohs/crename.git"
 	},
-	"scripts": {
-		"test": "node bin/crename.js -c"
-	},
+	"scripts": {},
 	"author": "m.grohs",
 	"license": "MIT",
 	"type": "module",
