@@ -1,0 +1,17 @@
+crename - Custom Rename CLI v2.0.0 (c) M.Groß
+
+Help Page for the --custom Command:
+
+Usage:
+crename --custom Arg Arg
+
+The Custom Command takes in 2 Arguments that specifie the Base Name Scheme and the Starting Count Number.
+If no Argument is provided the Command runs a prompt to get User Input for the Arguments.
+
+Note: This Command ignores Folders and only renames Files.
+If u want Whitespace between the Base Name and the Number it must be included in the Argument i.e. "FileName "
+
+Examples:
+crename
+crename -c Picture 10 
+crename --custom "Picture " 45

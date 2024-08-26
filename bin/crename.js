@@ -2,136 +2,208 @@
 'use strict';
 
 import { parseArgs } from 'node:util';
-import { readFile } from 'node:fs';
-import { select } from '@inquirer/prompts';
+import { readdir, readFile, rename, renameSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, extname, join } from 'node:path';
+import { confirm, input, number, select } from '@inquirer/prompts';
 import { options } from '../src/options.js';
 
-(() => {
-	const { values } = parseArgs({ options, allowPositionals: true });
+(async () => {
+	const { values, positionals } = parseArgs({ options, allowPositionals: true });
 
-	// Flags -c and -d cant exits at the same time
-	if ('custom' in values && 'default' in values) {
-		console.error('Flags --custom/-c and --default/-d can not be used together.\n');
-		process.exit();
-	}
-
-	// Flag --help read global help file only when it is the only arg
-	// otherwise show specific help files to other commands.
-	if ('help' in values && Object.keys(values).length === 1) {
-		readFile('help/help.txt', 'utf-8', (err, data) => {
-			if (err) console.log(err);
-
-			console.log(data);
-			process.exit();
+	// Check for Flags and Arguments
+	if (Object.keys(values).length === 0) {
+		const answer = await select({
+			message: 'Pick Rename Operation:',
+			choices: [
+				{ name: 'Default Rename', value: 'default' },
+				{ name: 'Custom Rename', value: 'custom' }
+			]
 		});
+
+		if (answer === 'default') {
+			const confirmation = await confirm({
+				message: 'This will overwrite any existing Files.\nAre you sure you want to continue?',
+				default: true
+			});
+
+			if (confirmation) {
+				defaultRename([...positionals]);
+			}
+		}
+
+		if (answer === 'custom') {
+			customRename([...positionals]);
+		}
 	}
 
-	//run();
+	if (Object.keys(values).length >= 1) {
+		// Flags -c and -d cant exits at the same time
+		if ('custom' in values && 'default' in values) {
+			console.error('Flags --custom/-c and --default/-d can not be used together.\n');
+			process.exit(9);
+		}
+
+		// Flag --help read global help file only when there is no arg
+		// otherwise show specific help files to other commands.
+		if ('help' in values && Object.keys(values).length === 1) {
+			const arg = positionals;
+			const helpFile = getHelpFile(arg[0]);
+
+			readFile(helpFile, 'utf-8', (err, data) => {
+				if (err) console.log(err);
+				console.log(data);
+				process.exitCode = 0;
+			});
+		}
+
+		if ('default' in values) {
+			defaultRename(positionals);
+		}
+
+		if ('custom' in values) {
+			customRename(positionals);
+		}
+	}
 })();
 
-async function run() {
-	const answer = await select({
-		message: 'Select a color',
-		choices: [
-			{ name: 'Red', value: '#ff0000' },
-			{ name: 'Green', value: '#00ff00' },
-			{ name: 'Blue', value: '#0000ff' }
-		]
-	});
-	console.log('You selected:', answer);
+function getHelpFile(arg) {
+	const __fileName = fileURLToPath(import.meta.url);
+	const __dirname = dirname(__fileName);
+
+	let fileName = 'help.txt';
+
+	if (arg === 'default') {
+		fileName = 'help_default.txt';
+	}
+
+	if (arg === 'custom') {
+		fileName = 'help_custom.txt';
+	}
+
+	return join(__dirname, '..', 'help', fileName);
 }
 
-// OLD STUFF
-// =========
+async function defaultRename(args) {
+	const cwd = process.cwd();
+	const startTime = new Date();
 
-// if (args.help) {
-// }
+	// Check for no Arguments
+	if (args.length === 0) {
+		args = ['Chapter '];
+	}
+	// Check for more Arguments
+	if (args.length > 1) {
+		console.log(`\nOnly one argument is allowed. Ignored Argument(s): ${args.slice(1)}\n`);
+		process.exit(9);
+	}
 
-// import { extname } from 'path';
-// import { readdir, rename, renameSync } from 'node:fs';
+	console.log('\nStarting Default Rename Process...\n');
 
-// Current Working Directory
-// const cwd = process.cwd();
+	readdir(cwd, (err, files) => {
+		if (err) throw err;
 
-// Default rename option for renaming Manga Chapters formerly known as "Folder Rename"
-// function defaultRename() {
-// 	// spacer
-// 	console.log('\nDefault Rename:\n');
+		for (const file of files) {
+			// Get file extension to only rename Folders
+			const fileExt = extname(file);
 
-// 	readdir(cwd, (err, files) => {
-// 		if (err) throw err;
+			if (!fileExt) {
+				// Get Chapter Number with Regex and construct new Name
+				const chapNum = file.match(/\d+/g);
+				const newName = args[0] + chapNum[0];
+				rename(file, newName, (err) => {
+					if (err) throw err;
+				});
+				console.log(`"${file}" renamed to: "${newName}"`);
+			}
+		}
+		const endTime = new Date();
+		const timeDiff = (endTime - startTime) / 1000;
+		console.log(`\nDefault Renaming took ${timeDiff}s to complete.\n`);
+	});
 
-// 		for (const file of files) {
-// 			// Get Chapter Number with Regex and construct new Name
-// 			const chapNum = file.match(/\d+/g);
-// 			const newName = `Chapter ${chapNum[0]}`;
+	process.exitCode = 0;
+}
 
-// 			rename(file, newName, (err) => {
-// 				if (err) throw err;
-// 			});
-// 			console.log(`"${file}" renamed to: "${newName}"`);
-// 		}
-// 	});
-// }
+async function customRename(args) {
+	const cwd = process.cwd();
+	let baseName, baseNum;
 
-// async function customRename(baseName, startingCounter) {
-// 	console.log('\nCustom Rename:\n');
+	// Check for Arguments
+	if (args.length < 1) {
+		// baseName does not need a type check. string and number are both valid
+		baseName = await input({
+			message: "Enter base naming scheme i.e. 'B99S1':"
+		});
 
-// 	readdir(cwd, (err, files) => {
-// 		let count = startingCounter;
+		baseNum = await input({
+			message: "Enter starting number i.e. '1':"
+		});
 
-// 		if (err) throw err;
+		if (!checkType(baseNum, 'number')) {
+			console.log('Starting Number needs to be a Number.\n');
+			process.exit(9);
+		}
+	}
 
-// 		for (const file of files) {
-// 			const fileExt = extname(file);
+	// Exit if only one Argument is provided
+	if (args.length === 1) {
+		console.log(
+			'\nCustom Rename needs 2 Arguments.\nArg 1 specifies the base naming scheme i.e. "B99S1E".\nArg 2 specifies the Starting Number to count of from i.e. "1".\n'
+		);
+		process.exit(9);
+	}
 
-// 			// Only rename Files without Extension to skip Folders
-// 			if (fileExt) {
-// 				const newName = baseName + count + fileExt;
+	if (args.length > 1) {
+		// Check that the 2nd Argument for Custom Rename is a valid Number
+		baseName = args[0];
+		baseNum = Number(args[1]);
 
-// 				renameSync(file, newName);
-// 				console.log(`"${file}" renamed to: "${newName}"`);
-// 				count++;
-// 			}
-// 		}
-// 	});
-// }
+		if (checkType(baseNum, 'number') === false) {
+			console.log('Starting Number needs to be a Number and greater than 0.\n');
+			process.exit(9);
+		}
+	}
 
-// const customPrompts = [
-// 	{
-// 		type: 'select',
-// 		name: 'baseChoice',
-// 		message: 'Pick Operation:',
-// 		choices: [
-// 			{
-// 				title: 'Default Rename for Manga Chapters',
-// 				description: 'Default Rename for Manga Chapters. (Renames everything in CWD regardless of Folder/File)',
-// 				value: 'default'
-// 			},
-// 			{
-// 				title: 'Custom Rename Inputs',
-// 				description: 'Custom Rename with Inputs for Name and starting Number (Ignores Folders)',
-// 				value: 'custom'
-// 			}
-// 		]
-// 	},
-// 	{
-// 		type: (prev) => (prev === 'custom' ? 'text' : null),
-// 		name: 'baseName',
-// 		message: 'Enter base naming scheme i.e. "B99S1":'
-// 	},
-// 	{
-// 		type: (_, values) => (values.baseName ? 'text' : null),
-// 		name: 'baseNumber',
-// 		message: 'Enter the starting number to count from:'
-// 	}
-// ];
+	const confirmation = await confirm({
+		message: 'This will overwrite any existing Folders.\nAre you sure you want to continue?',
+		default: true
+	});
 
-// 	async () => {
-// 		const resp = await prompts(customPrompts);
+	if (confirmation) {
+		const startTime = new Date();
 
-// 		if (resp.baseChoice === 'default') defaultRename();
+		console.log('\nStarting Custom Rename Process...\n');
 
-// 		if (resp.baseChoice === 'custom') customRename(resp.baseName, resp.baseNumber);
-// 	}
-// )();
+		readdir(cwd, (err, files) => {
+			if (err) throw err;
+
+			for (const file of files) {
+				const fileExt = extname(file);
+
+				// Only rename Files with Extension to skip Folders
+				if (fileExt) {
+					const newName = baseName + baseNum + fileExt;
+					renameSync(file, newName);
+					console.log(`"${file}" renamed to: "${newName}"`);
+					baseNum++;
+				}
+			}
+			const endTime = new Date();
+			const timeDiff = (endTime - startTime) / 1000;
+			console.log(`\nCustom Renaming took ${timeDiff}s to complete.\n`);
+			process.exitCode = 0;
+		});
+	}
+}
+
+// Checks if an input is a Number and greater than 0
+function checkType(ele, type) {
+	if (type === 'number') {
+		const num = Number(ele);
+		if (isNaN(num) || num < 1) {
+			return false;
+		}
+		return true;
+	}
+}

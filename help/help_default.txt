@@ -1,0 +1,18 @@
+crename - Custom Rename CLI v2.0.0 (c) M.Groß
+
+Help Page for the --default Command:
+
+Usage:
+crename --default Arg
+
+The Default Command takes in 1 Argument that specifies the Base Name Scheme for the renaming.
+Then it looks for the first Numbers it can find and uses those to complete the Naming.
+If no Argument is provided the Command defaults to the String "Chapter ". (mind the whitespace)
+
+Note: This Command ignores Files and only renames Folders.
+If u want Whitespace between the Base Name and the Number it must be included in the Argument
+
+Examples:
+crename 
+crename -d Folder 
+crename --default "Test " 

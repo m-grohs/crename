@@ -1,15 +1,20 @@
-crename - Custom Rename CLI v2.0.0 (2024 July 23)
+crename - Custom Rename CLI v2.0.0 (2024 August) (c) M.Groß
 
 A Custom Rename CLI that provides specific Ways to batch rename Files/Folders with custom Names and sequential Numbering.
 For Example: FolderName001, FolderName002, ...
 
 Options:
--h, --help           Show this message and exit.
--c, --custom         Runs with the Custom Option
--d, --default        Runs with the Default Option
+-h, --help          Show this Help Page.
+                    If provided an Argument shows the Help Page of the Command specified in the Argument.
+
+-c, --custom        Runs with the Custom Option
+
+-d, --default       Runs with the Default Option
 
 Command Examples:
 crename -d
 crename --custom
+crename -h default
+crename -h custom
 
 For more information, visit: https://www.github.com/m-grohs/crename
