@@ -14,26 +14,22 @@ import { options } from '../src/options.js';
 	// Check for Flags and Arguments
 	if (Object.keys(values).length === 0) {
 		const answer = await select({
-			message: 'Pick Rename Operation:',
+			message: 'Pick Renaming Operation:',
 			choices: [
 				{ name: 'Default Rename', value: 'default' },
 				{ name: 'Custom Rename', value: 'custom' }
 			]
 		});
 
-		if (answer === 'default') {
-			const confirmation = await confirm({
-				message: 'This will overwrite any existing Files.\nAre you sure you want to continue?',
-				default: true
-			});
+		// reset positionals so it doesnt get used without a flag
+		// positionals = null;
 
-			if (confirmation) {
-				defaultRename([...positionals]);
-			}
+		if (answer === 'default') {
+			defaultRename();
 		}
 
 		if (answer === 'custom') {
-			customRename([...positionals]);
+			customRename([]);
 		}
 	}
 
@@ -89,38 +85,52 @@ async function defaultRename(args) {
 	const startTime = new Date();
 
 	// Check for no Arguments
-	if (args.length === 0) {
+	if (!args) {
 		args = ['Chapter '];
 	}
+
 	// Check for more Arguments
 	if (args.length > 1) {
 		console.log(`\nOnly one argument is allowed. Ignored Argument(s): ${args.slice(1)}\n`);
 		process.exit(9);
 	}
 
-	console.log('\nStarting Default Rename Process...\n');
-
-	readdir(cwd, (err, files) => {
-		if (err) throw err;
-
-		for (const file of files) {
-			// Get file extension to only rename Folders
-			const fileExt = extname(file);
-
-			if (!fileExt) {
-				// Get Chapter Number with Regex and construct new Name
-				const chapNum = file.match(/\d+/g);
-				const newName = args[0] + chapNum[0];
-				rename(file, newName, (err) => {
-					if (err) throw err;
-				});
-				console.log(`"${file}" renamed to: "${newName}"`);
-			}
-		}
-		const endTime = new Date();
-		const timeDiff = (endTime - startTime) / 1000;
-		console.log(`\nDefault Renaming took ${timeDiff}s to complete.\n`);
+	const confirmation = await confirm({
+		message: 'This will rename all existing Folders in the current Directory.\nAre you sure you want to continue?',
+		default: true
 	});
+
+	if (confirmation) {
+		console.log('\nStarting Default Renaming Process...\n');
+
+		readdir(cwd, (err, files) => {
+			if (err) throw err;
+
+			for (const file of files) {
+				// Get file extension to only rename Folders
+				const fileExt = extname(file);
+
+				if (!fileExt) {
+					// Get Folder Number with Regex and construct new Name
+					const chapNum = file.match(/\d+/g);
+
+					// Exit when there is no Number to use
+					if (!chapNum) {
+						console.log(`"${file}" has no Number. Aborting...\n`);
+						process.exit(9);
+					}
+					const newName = args[0] + chapNum[0];
+					// rename(file, newName, (err) => {
+					// 	if (err) throw err;
+					// });
+					console.log(`"${file}" renamed to: "${newName}"`);
+				}
+			}
+			const endTime = new Date();
+			const timeDiff = (endTime - startTime) / 1000;
+			console.log(`\nDefault Renaming took ${timeDiff}s to complete.\n`);
+		});
+	}
 
 	process.exitCode = 0;
 }
@@ -166,7 +176,7 @@ async function customRename(args) {
 	}
 
 	const confirmation = await confirm({
-		message: 'This will overwrite any existing Folders.\nAre you sure you want to continue?',
+		message: 'This will rename all existing Files in the current Directory.\nAre you sure you want to continue?',
 		default: true
 	});
 
@@ -184,7 +194,7 @@ async function customRename(args) {
 				// Only rename Files with Extension to skip Folders
 				if (fileExt) {
 					const newName = baseName + baseNum + fileExt;
-					renameSync(file, newName);
+					// renameSync(file, newName);
 					console.log(`"${file}" renamed to: "${newName}"`);
 					baseNum++;
 				}
