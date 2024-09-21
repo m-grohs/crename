@@ -5,7 +5,7 @@ import { parseArgs } from 'node:util';
 import { readdir, readFile, rename, renameSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, extname, join } from 'node:path';
-import { confirm, input, number, select } from '@inquirer/prompts';
+import { confirm, input, select } from '@inquirer/prompts';
 import { options } from '../src/options.js';
 
 (async () => {
@@ -16,13 +16,10 @@ import { options } from '../src/options.js';
 		const answer = await select({
 			message: 'Pick Renaming Operation:',
 			choices: [
-				{ name: 'Default Rename', value: 'default' },
-				{ name: 'Custom Rename', value: 'custom' }
+				{ name: 'Default Rename for Folders', value: 'default' },
+				{ name: 'Custom Rename for Files', value: 'custom' }
 			]
 		});
-
-		// reset positionals so it doesnt get used without a flag
-		// positionals = null;
 
 		if (answer === 'default') {
 			defaultRename();
@@ -120,9 +117,9 @@ async function defaultRename(args) {
 						process.exit(9);
 					}
 					const newName = args[0] + chapNum[0];
-					// rename(file, newName, (err) => {
-					// 	if (err) throw err;
-					// });
+					rename(file, newName, (err) => {
+						if (err) throw err;
+					});
 					console.log(`"${file}" renamed to: "${newName}"`);
 				}
 			}
@@ -194,7 +191,7 @@ async function customRename(args) {
 				// Only rename Files with Extension to skip Folders
 				if (fileExt) {
 					const newName = baseName + baseNum + fileExt;
-					// renameSync(file, newName);
+					renameSync(file, newName);
 					console.log(`"${file}" renamed to: "${newName}"`);
 					baseNum++;
 				}
