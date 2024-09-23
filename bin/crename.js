@@ -81,10 +81,8 @@ async function defaultRename(args) {
 	const cwd = process.cwd();
 	const startTime = new Date();
 
-	// Check for no Arguments
-	if (!args) {
-		args = ['Chapter '];
-	}
+	// Check for No or Empty Arguments
+	if (!args || args.length === 0) args = ['Chapter '];
 
 	// Check for more Arguments
 	if (args.length > 1) {
@@ -117,9 +115,9 @@ async function defaultRename(args) {
 						process.exit(9);
 					}
 					const newName = args[0] + chapNum[0];
-					rename(file, newName, (err) => {
-						if (err) throw err;
-					});
+					// rename(file, newName, (err) => {
+					// 	if (err) throw err;
+					// });
 					console.log(`"${file}" renamed to: "${newName}"`);
 				}
 			}
@@ -191,7 +189,7 @@ async function customRename(args) {
 				// Only rename Files with Extension to skip Folders
 				if (fileExt) {
 					const newName = baseName + baseNum + fileExt;
-					renameSync(file, newName);
+					// renameSync(file, newName);
 					console.log(`"${file}" renamed to: "${newName}"`);
 					baseNum++;
 				}
