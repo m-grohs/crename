@@ -13,7 +13,7 @@ git clone https://github.com/m-grohs/crename.git
 
 cd crename
 
-npm i -g .
+npm i && npm i -g .
 ```
 
 ---
