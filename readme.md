@@ -13,7 +13,7 @@ git clone https://github.com/m-grohs/crename.git
 
 cd crename
 
-npm i && npm i -g .
+npm i & npm i -g .
 ```
 
 ---
@@ -29,7 +29,7 @@ crename
 > The Renaming takes place in the current working Directory.
 
 > [!WARNING]
-> There is no Protection in place at the moment, so any Folder in the Directory will be renamed in this Scheme
+> There is no Protection in place at the moment, so any Folder in the Directory will be renamed in the Default Option.
 
 -   **Default Rename Option:**
     The Default Rename Option can take 1 Argument that it uses for the Base Name Scheme. 
