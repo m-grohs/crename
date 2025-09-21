@@ -107,7 +107,7 @@ async function defaultRename(args) {
 
 				if (!fileExt) {
 					// Get Folder Number with Regex and construct new Name
-					const chapNum = file.match(/\d+/g);
+					const chapNum = file.match(/\d+$/g);
 
 					// Exit when there is no Number to use
 					if (!chapNum) {
